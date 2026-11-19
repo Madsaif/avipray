@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>স্মৃতিমেট — যা পড়েছ, তা মনে থাকুক</title>
+<meta name="description" content="স্মৃতিমেট একটি AI পড়াশোনার সাথী। সঠিক সময়ে পুনরাবৃত্তি, মক টেস্ট আর অভ্যাস ট্র্যাকিং, সব এক জায়গায়।">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F5F0E6;
+    --surface: #FBF8F1;
+    --ink: #1D2630;
+    --muted: #5E6670;
+    --line: #DDD5C4;
+    --accent: #1F6B63;
+    --accent-ink: #FBF8F1;
+    --soft: #E4EEEA;
+    color-scheme: light;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #141A1F;
+      --surface: #1B232A;
+      --ink: #EDE7DA;
+      --muted: #A7AFB8;
+      --line: #2E3941;
+      --accent: #6CC2B6;
+      --accent-ink: #10201E;
+      --soft: #1E3431;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #141A1F;
+    --surface: #1B232A;
+    --ink: #EDE7DA;
+    --muted: #A7AFB8;
+    --line: #2E3941;
+    --accent: #6CC2B6;
+    --accent-ink: #10201E;
+    --soft: #1E3431;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  .wrap { width: min(1080px, 100% - 40px); margin-inline: auto; }
+
+  /* Header */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 0;
+  }
+  .brand { font-weight: 700; font-size: 20px; text-decoration: none; letter-spacing: 0; }
+  .brand span { color: var(--accent); }
+  nav a { margin-left: 22px; text-decoration: none; color: var(--muted); font-size: 15px; }
+  nav a:hover { color: var(--ink); }
+
+  /* Hero */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 48px;
+    align-items: center;
+    padding: 56px 0 84px;
+  }
+  h1 {
+    font-size: clamp(2.1rem, 4.6vw, 3.4rem);
+    line-height: 1.3;
+    font-weight: 700;
+    margin: 0 0 20px;
+  }
+  .lead {
+    font-size: 1.12rem;
+    color: var(--muted);
+    max-width: 34ch;
+    margin: 0 0 32px;
+  }
+  .cta {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--accent-ink);
+    padding: 14px 26px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 16px;
+  }
+  .cta:hover { filter: brightness(1.06); }
+  .note { margin-top: 14px; font-size: 14px; color: var(--muted); }
+
+  .curve-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 24px 22px 18px;
+  }
+  .curve-card h2 { font-size: 16px; font-weight: 600; margin: 0 0 4px; }
+  .curve-card p { margin: 0 0 12px; font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .curve-card svg { width: 100%; height: auto; display: block; }
+  .curve-card .axis { stroke: var(--line); stroke-width: 1; }
+  .curve-card .decay { fill: none; stroke: var(--muted); stroke-width: 2; stroke-dasharray: 2 6; stroke-linecap: round; }
+  .curve-card .recall { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .curve-card .dot { fill: var(--accent); }
+  .curve-card text { fill: var(--muted); font-size: 12px; font-family: "Hind Siliguri", sans-serif; }
+
+  /* Sections */
+  section { padding: 72px 0; border-top: 1px solid var(--line); }
+  h2.section-title { font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1.35; margin: 0 0 12px; font-weight: 700; }
+  .section-intro { color: var(--muted); max-width: 52ch; margin: 0 0 40px; }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px 40px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .features li { padding: 22px 0; border-top: 1px solid var(--line); }
+  .features h3 { font-size: 1.1rem; margin: 0 0 6px; font-weight: 600; }
+  .features p { margin: 0; color: var(--muted); font-size: 15.5px; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin: 0; padding: 0; list-style: none; counter-reset: step; }
+  .steps li { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 26px 24px; }
+  .steps li::before {
+    counter-increment: step;
+    content: counter(step);
+    display: inline-grid; place-items: center;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--soft); color: var(--accent);
+    font-weight: 700; margin-bottom: 14px;
+  }
+  .steps h3 { font-size: 1.05rem; margin: 0 0 6px; font-weight: 600; }
+  .steps p { margin: 0; color: var(--muted); font-size: 15.5px; }
+
+  .closing { text-align: left; padding: 72px 0 96px; }
+  .closing p { color: var(--muted); max-width: 46ch; margin: 0 0 28px; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 26px 0 calc(34px + env(safe-area-inset-bottom, 0px));
+    color: var(--muted);
+    font-size: 14px;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; gap: 36px; padding: 32px 0 60px; }
+    .features { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; }
+    nav a { margin-left: 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a class="brand" href="#">স্মৃতি<span>মেট</span></a>
+      <nav aria-label="প্রধান মেনু">
+        <a href="#features">সুবিধা</a>
+        <a href="#how">কীভাবে কাজ করে</a>
+        <a href="#start">শুরু করো</a>
+      </nav>
+    </header>
+
+    <main>
+      <div class="hero">
+        <div>
+          <h1>যা পড়েছ, তা ভুলে যাবে না</h1>
+          <p class="lead">স্মৃতিমেট ঠিক সময়ে তোমাকে আগের পড়া মনে করিয়ে দেয়। মক টেস্ট, অভ্যাস আর নম্বরের হিসাব, সব এক জায়গায়।</p>
+          <a class="cta" href="#start">আগ্রহ জানাও</a>
+          <p class="note">অ্যাপটি এখনো তৈরি হচ্ছে। আগ্রহ জানালে প্রথম খবর পাবে।</p>
+        </div>
+
+        <figure class="curve-card" style="margin:0">
+          <h2>ভুলে যাওয়ার রেখা বনাম পুনরাবৃত্তি</h2>
+          <p>প্রতিবার মনে করার পর স্মৃতি বেশিদিন টেকে।</p>
+          <svg viewBox="0 0 600 240" role="img" aria-labelledby="curve-title curve-desc">
+            <title id="curve-title">পুনরাবৃত্তির সাথে স্মৃতির ধারাবাহিকতা</title>
+            <desc id="curve-desc">প্রতিবার পুনরাবৃত্তির পর স্মৃতির মান ধীরে ধীরে কমে কিন্তু প্রতিটি পুনরাবৃত্তির সাথে আবার বাড়ে এবং রেখা উপরের দিকে ওঠে।</desc>
+            <line class="axis" x1="20" y1="210" x2="580" y2="210"></line>
+            <line class="axis" x1="20" y1="20" x2="20" y2="210"></line>
+            <path class="decay" d="M20 40 C 60 120, 90 170, 120 190 M120 70 C 160 120, 220 150, 260 158 M260 84 C 300 118, 360 136, 420 146 M420 56 C 470 84, 530 96, 580 104"></path>
+            <path class="recall" d="M20 40 C 60 120, 90 170, 120 190 L120 70 C 160 120, 220 150, 260 158 L260 84 C 300 118, 360 136, 420 146 L420 56 C 470 84, 530 96, 580 104"></path>
+            <circle class="dot" cx="120" cy="70" r="5"></circle>
+            <circle class="dot" cx="260" cy="84" r="5"></circle>
+            <circle class="dot" cx="420" cy="56" r="5"></circle>
+            <text x="28" y="232">আজ</text>
+            <text x="110" y="232">১ দিন পর</text>
+            <text x="250" y="232">৩ দিন পর</text>
+            <text x="410" y="232">৭ দিন পর</text>
+          </svg>
+        </figure>
+      </div>
+
+      <section id="features">
+        <h2 class="section-title">পড়াশোনা হোক গোছানো</h2>
+        <p class="section-intro">প্রতিদিন কী পড়বে, কখন মনে করবে, কোথায় দুর্বল, সব স্পষ্ট থাকবে।</p>
+        <ul class="features">
+          <li>
+            <h3>ঠিক সময়ে পুনরাবৃত্তি</h3>
+            <p>যে বিষয় ভুলে যাওয়ার মুখে, সেটা আগে ফিরিয়ে আনা হয়। বাকি সময়ে নতুন পড়ায় মন দাও।</p>
+          </li>
+          <li>
+            <h3>মক টেস্ট ও সময়</h3>
+            <p>আসল পরীক্ষার মতো সময় বেঁধে অনুশীলন। শেষে প্রতিটি উত্তরের ব্যাখ্যা।</p>
+          </li>
+          <li>
+            <h3>নম্বর বিশ্লেষণ</h3>
+            <p>কোন বিষয়ে নম্বর কোথায় হারাচ্ছ, তা এক নজরে। দুর্বল অংশের তালিকা নিজে থেকে তৈরি হয়।</p>
+          </li>
+          <li>
+            <h3>দৈনিক অভ্যাস</h3>
+            <p>রোজ কতক্ষণ পড়লে, কোন দিন বাদ পড়ল, সব হিসাব থাকবে। ছোট লক্ষ্যে এগিয়ে যাও।</p>
+          </li>
+        </ul>
+      </section>
+
+      <section id="how">
+        <h2 class="section-title">কীভাবে কাজ করে</h2>
+        <p class="section-intro">তিনটা ধাপ, আর কোনো জটিলতা নেই।</p>
+        <ol class="steps">
+          <li>
+            <h3>বিষয় বেছে নাও</h3>
+            <p>তোমার সিলেবাস বা নোট যোগ করো। অ্যাপ বিষয়গুলো সাজিয়ে দেবে।</p>
+          </li>
+          <li>
+            <h3>প্রতিদিন অল্প পড়ো</h3>
+            <p>দৈনিক পরিকল্পনা অনুযায়ী পড়ো এবং ছোট কুইজ দাও।</p>
+          </li>
+          <li>
+            <h3>ফিরে এসে মনে করো</h3>
+            <p>ঠিক সময়ে অ্যাপ জানাবে কী মনে করতে হবে। এভাবেই স্মৃতি পাকা হয়।</p>
+          </li>
+        </ol>
+      </section>
+
+      <section id="start" class="closing">
+        <h2 class="section-title">প্রথম খবর পেতে চাও?</h2>
+        <p>স্মৃতিমেট তৈরি হলে আমরা জানাব। এখন শুধু আগ্রহ জানাও, কোনো খরচ নেই।</p>
+        <a class="cta" href="mailto:hello@smritimate.app?subject=আগ্রহ%20জানাতে%20চাই">ইমেইলে আগ্রহ জানাও</a>
+        <p class="note">ইমেইল ঠিকানাটি পরে নিজের ডোমেইনে বদলাতে হবে।</p>
+      </section>
+    </main>
+
+    <footer>
+      <span>© ২০২৬ স্মৃতিমেট</span>
+      <span>যা পড়েছ, তা মনে থাকুক।</span>
+    </footer>
+  </div>
+</body>
+</html>
