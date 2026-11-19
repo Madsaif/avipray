@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HisabNova — পড়াশোনার হিসাব, দুর্বলতা ধরা, মক টেস্ট</title>
+<meta name="description" content="HisabNova একটি AI পড়াশোনার এজেন্ট। তোমার পড়ার হিসাব রাখে, দুর্বল বিষয় চিহ্নিত করে, সমাধান দেয় এবং মক টেস্ট নেয়।">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F4F1EA;
+    --surface: #FBF9F4;
+    --ink: #1C2430;
+    --muted: #5C6573;
+    --line: #DCD6C8;
+    --accent: #2D5BA6;
+    --accent-ink: #FBF9F4;
+    --weak: #B5543C;
+    --track: #E6E1D5;
+    color-scheme: light;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #121820;
+      --surface: #19212B;
+      --ink: #E9E6DE;
+      --muted: #A3ABB7;
+      --line: #2B3644;
+      --accent: #8DB4F0;
+      --accent-ink: #0F1A2C;
+      --weak: #E08A72;
+      --track: #26303C;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #121820;
+    --surface: #19212B;
+    --ink: #E9E6DE;
+    --muted: #A3ABB7;
+    --line: #2B3644;
+    --accent: #8DB4F0;
+    --accent-ink: #0F1A2C;
+    --weak: #E08A72;
+    --track: #26303C;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  .wrap { width: min(1080px, 100% - 40px); margin-inline: auto; }
+
+  header { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+  .brand { font-weight: 700; font-size: 20px; text-decoration: none; }
+  .brand span { color: var(--accent); }
+  nav a { margin-left: 22px; text-decoration: none; color: var(--muted); font-size: 15px; }
+  nav a:hover { color: var(--ink); }
+
+  .hero {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 48px;
+    align-items: center;
+    padding: 56px 0 84px;
+  }
+  h1 { font-size: clamp(2.1rem, 4.6vw, 3.4rem); line-height: 1.3; font-weight: 700; margin: 0 0 20px; }
+  .lead { font-size: 1.12rem; color: var(--muted); max-width: 36ch; margin: 0 0 32px; }
+  .cta {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--accent-ink);
+    padding: 14px 26px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 16px;
+  }
+  .cta:hover { filter: brightness(1.06); }
+  .note { margin-top: 14px; font-size: 14px; color: var(--muted); }
+
+  /* Dashboard preview card */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 24px 24px 20px;
+  }
+  .panel h2 { font-size: 16px; font-weight: 600; margin: 0 0 4px; }
+  .panel > p { margin: 0 0 18px; font-size: 14px; color: var(--muted); }
+  .row { margin-bottom: 14px; }
+  .row-head { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 6px; }
+  .row-head em { font-style: normal; font-size: 13px; color: var(--muted); }
+  .bar { height: 10px; background: var(--track); border-radius: 999px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+  .row.weak .bar i { background: var(--weak); }
+  .row.weak .row-head em { color: var(--weak); font-weight: 600; }
+  .tip {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: var(--track);
+    font-size: 15px;
+  }
+
+  section { padding: 72px 0; border-top: 1px solid var(--line); }
+  h2.section-title { font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1.35; margin: 0 0 12px; font-weight: 700; }
+  .section-intro { color: var(--muted); max-width: 52ch; margin: 0 0 40px; }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px 40px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .features li { padding: 22px 0; border-top: 1px solid var(--line); }
+  .features h3 { font-size: 1.1rem; margin: 0 0 6px; font-weight: 600; }
+  .features p { margin: 0; color: var(--muted); font-size: 15.5px; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin: 0; padding: 0; list-style: none; counter-reset: step; }
+  .steps li { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 26px 24px; }
+  .steps li::before {
+    counter-increment: step;
+    content: counter(step);
+    display: inline-grid; place-items: center;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--track); color: var(--accent);
+    font-weight: 700; margin-bottom: 14px;
+  }
+  .steps h3 { font-size: 1.05rem; margin: 0 0 6px; font-weight: 600; }
+  .steps p { margin: 0; color: var(--muted); font-size: 15.5px; }
+
+  .closing { padding: 72px 0 96px; }
+  .closing p { color: var(--muted); max-width: 46ch; margin: 0 0 28px; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 26px 0 calc(34px + env(safe-area-inset-bottom, 0px));
+    color: var(--muted);
+    font-size: 14px;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; gap: 36px; padding: 32px 0 60px; }
+    .features { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; }
+    nav a { margin-left: 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a class="brand" href="#">Hisab<span>Nova</span></a>
+      <nav aria-label="প্রধান মেনু">
+        <a href="#features">সুবিধা</a>
+        <a href="#how">কীভাবে কাজ করে</a>
+        <a href="#start">শুরু করো</a>
+      </nav>
+    </header>
+
+    <main>
+      <div class="hero">
+        <div>
+          <h1>তোমার পড়াশোনার হিসাব রাখো, দুর্বলতা ধরো</h1>
+          <p class="lead">HisabNova তোমার প্রতিদিনের পড়া লিখে রাখে, কোথায় দুর্বল তা চিহ্নিত করে, সমাধানের পরিকল্পনা দেয় আর মক টেস্ট নেয়।</p>
+          <a class="cta" href="#start">আগ্রহ জানাও</a>
+          <p class="note">অ্যাপটি এখনো তৈরি হচ্ছে। আগ্রহ জানালে প্রথম খবর পাবে।</p>
+        </div>
+
+        <figure class="panel" style="margin:0">
+          <h2>এই সপ্তাহের হিসাব</h2>
+          <p>কোন বিষয়ে কতটা প্রস্তুতি, এক নজরে।</p>
+
+          <div class="row">
+            <div class="row-head"><span>গণিত</span><em>৭২%</em></div>
+            <div class="bar"><i style="width:72%"></i></div>
+          </div>
+          <div class="row weak">
+            <div class="row-head"><span>বিজ্ঞান</span><em>দুর্বল · ৪১%</em></div>
+            <div class="bar"><i style="width:41%"></i></div>
+          </div>
+          <div class="row">
+            <div class="row-head"><span>বাংলা</span><em>৬৮%</em></div>
+            <div class="bar"><i style="width:68%"></i></div>
+          </div>
+          <div class="row weak">
+            <div class="row-head"><span>ইতিহাস</span><em>দুর্বল · ৩৫%</em></div>
+            <div class="bar"><i style="width:35%"></i></div>
+          </div>
+
+          <div class="tip">বিজ্ঞানের "আলোর প্রতিফলন" অধ্যায়ে ভুল বেশি। আজ ২০ মিনিটের মক টেস্ট দাও।</div>
+        </figure>
+      </div>
+
+      <section id="features">
+        <h2 class="section-title">পড়াশোনার পুরো হিসাব এক জায়গায়</h2>
+        <p class="section-intro">কী পড়েছ, কতটা সময় দিয়েছ, কোথায় ভুল করছ, সব স্পষ্ট থাকবে।</p>
+        <ul class="features">
+          <li>
+            <h3>বিষয় ও সিলেবাস ট্র্যাক</h3>
+            <p>প্রতিটি বিষয়ের কোন অধ্যায় শেষ হয়েছে, কোনটা বাকি, সব এক তালিকায়।</p>
+          </li>
+          <li>
+            <h3>দুর্বলতা চিহ্নিত</h3>
+            <p>মক টেস্ট আর অনুশীলনের ফল দেখে কোন অংশে বারবার ভুল হচ্ছে, সেটা আলাদা করে দেখায়।</p>
+          </li>
+          <li>
+            <h3>সমাধানের পরিকল্পনা</h3>
+            <p>দুর্বল অংশের জন্য ছোট দৈনিক কাজ তৈরি হয়। কী আগে পড়বে, সেটাও ঠিক করে দেয়।</p>
+          </li>
+          <li>
+            <h3>মক টেস্ট ও সময়</h3>
+            <p>আসল পরীক্ষার মতো সময় বেঁধে টেস্ট দাও। শেষে প্রতিটি উত্তরের ব্যাখ্যা পাবে।</p>
+          </li>
+          <li>
+            <h3>টাইমার ও পরিসংখ্যান</h3>
+            <p>কোন বিষয়ে কত ঘণ্টা দিয়েছ, তার চার্ট। দৈনিক ও সাপ্তাহিক অগ্রগতি।</p>
+          </li>
+          <li>
+            <h3>সময়মতো নোটিফিকেশন</h3>
+            <p>পড়ার সময় হলে, ভুলে যাওয়া বিষয় মনে করাতে, বা মক টেস্টের সময় হলে জানাবে।</p>
+          </li>
+        </ul>
+      </section>
+
+      <section id="how">
+        <h2 class="section-title">কীভাবে কাজ করে</h2>
+        <p class="section-intro">তিনটা ধাপ, আর কোনো জটিলতা নেই।</p>
+        <ol class="steps">
+          <li>
+            <h3>সিলেবাস যোগ করো</h3>
+            <p>তোমার বিষয় ও পরীক্ষার তারিখ দাও। এজেন্ট পরিকল্পনা তৈরি করবে।</p>
+          </li>
+          <li>
+            <h3>পড়ো ও টেস্ট দাও</h3>
+            <p>প্রতিদিন পড়ার হিসাব লেখো এবং মক টেস্ট দাও। ফল নিজে থেকে জমা হবে।</p>
+          </li>
+          <li>
+            <h3>দুর্বলতা ও সমাধান</h3>
+            <p>এজেন্ট দুর্বল অংশ দেখায় এবং সেটা ঠিক করার পরিকল্পনা দেয়।</p>
+          </li>
+        </ol>
+      </section>
+
+      <section id="start" class="closing">
+        <h2 class="section-title">প্রথম খবর পেতে চাও?</h2>
+        <p>HisabNova তৈরি হলে আমরা জানাব। এখন শুধু আগ্রহ জানাও, কোনো খরচ নেই।</p>
+        <a class="cta" href="mailto:hello@hisabnova.app?subject=আগ্রহ%20জানাতে%20চাই">ইমেইলে আগ্রহ জানাও</a>
+        <p class="note"></p>
+      </section>
+    </main>
+
+    <footer>
+      <span>© ২০২৬ HisabNova</span>
+      <span>পড়ো, মাপো, এগিয়ে যাও।</span>
+    </footer>
+  </div>
+</body>
+</html>
